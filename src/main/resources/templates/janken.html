@@ -8,7 +8,15 @@
 
 <body>
   <h1>じゃんけん</h1>
-  <p th:if="${username != null}">Hi [[${username}]]</p>
+  <a href="/logout">ログアウト</a>
+
+  <div th:if="${entry}">
+    <p>Hi [[${loginUser}]]</p>
+    <h2>エントリー</h2>
+    <ul>
+      <li th:each="user : ${entry.users}">[[${user}]]</li>
+    </ul>
+  </div>
   <ul>
     <li><a th:href="@{/jankengame(hand='グー')}">グー</a></li>
     <li><a th:href="@{/jankengame(hand='チョキ')}">チョキ</a></li>
