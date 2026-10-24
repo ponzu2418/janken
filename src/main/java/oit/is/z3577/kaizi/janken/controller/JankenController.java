@@ -13,6 +13,8 @@ import oit.is.z3577.kaizi.janken.model.Entry;
 import oit.is.z3577.kaizi.janken.model.Janken;
 import oit.is.z3577.kaizi.janken.model.User;
 import oit.is.z3577.kaizi.janken.model.UserMapper;
+import oit.is.z3577.kaizi.janken.model.Match;
+import oit.is.z3577.kaizi.janken.model.MatchMapper;
 
 @Controller
 public class JankenController {
@@ -20,6 +22,8 @@ public class JankenController {
   private Entry entry;
   @Autowired
   UserMapper userMapper;
+  @Autowired
+  MatchMapper matchMapper;
 
   /**
    * /janken に直接アクセスしたとき．ユーザ名は表示しない．
@@ -33,6 +37,8 @@ public class JankenController {
 
     ArrayList<User> users = userMapper.selectAllUsers();
     model.addAttribute("users", users);
+    ArrayList<Match> matches = matchMapper.selectAllMatches();
+    model.addAttribute("matches", matches);
     return "janken.html";
   }
 
