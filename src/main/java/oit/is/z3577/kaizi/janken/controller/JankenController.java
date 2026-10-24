@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.security.Principal;
 import java.util.ArrayList;
 
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import oit.is.z3577.kaizi.janken.model.Entry;
 
@@ -15,6 +16,7 @@ import oit.is.z3577.kaizi.janken.model.User;
 import oit.is.z3577.kaizi.janken.model.UserMapper;
 import oit.is.z3577.kaizi.janken.model.Match;
 import oit.is.z3577.kaizi.janken.model.MatchMapper;
+
 
 @Controller
 public class JankenController {
@@ -47,6 +49,15 @@ public class JankenController {
     Janken janken = new Janken(hand);
     model.addAttribute("janken", janken);
     return "janken.html";
+  }
+
+
+  @GetMapping("/match")
+  public String match(@RequestParam Integer id, Principal prin, ModelMap model) {
+    User opponent = userMapper.selectById(id);   // クリックされた相手
+    model.addAttribute("loginUser", prin.getName());
+    model.addAttribute("opponent", opponent);
+    return "match.html";
   }
 
 }
