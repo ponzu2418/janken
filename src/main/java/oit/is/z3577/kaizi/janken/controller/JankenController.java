@@ -3,18 +3,23 @@ package oit.is.z3577.kaizi.janken.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import java.security.Principal;
+import java.util.ArrayList;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import oit.is.z3577.kaizi.janken.model.Entry;
 
 import oit.is.z3577.kaizi.janken.model.Janken;
+import oit.is.z3577.kaizi.janken.model.User;
+import oit.is.z3577.kaizi.janken.model.UserMapper;
 
 @Controller
 public class JankenController {
   @Autowired
   private Entry entry;
+  @Autowired
+  UserMapper userMapper;
 
   /**
    * /janken に直接アクセスしたとき．ユーザ名は表示しない．
@@ -25,6 +30,9 @@ public class JankenController {
     this.entry.addUser(loginUser);
     model.addAttribute("loginUser", loginUser);
     model.addAttribute("entry", this.entry);
+
+    ArrayList<User> users = userMapper.selectAllUsers();
+    model.addAttribute("users", users);
     return "janken.html";
   }
 

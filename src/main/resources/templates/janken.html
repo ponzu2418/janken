@@ -14,7 +14,7 @@
     <p>Hi [[${loginUser}]]</p>
     <h2>エントリー</h2>
     <ul>
-      <li th:each="user : ${entry.users}">[[${user}]]</li>
+      <li th:each="user : ${users}" th:text="${user.name}"></li>
     </ul>
   </div>
   <ul>
