@@ -23,15 +23,18 @@
     <li><a th:href="@{/jankengame(hand='パー')}">パー</a></li>
   </ul>
 
-  <div th:if="${janken != null}">
-    <p>あなたの手 [[${janken.playerHand}]]</p>
-    <p>相手の手 [[${janken.cpuHand}]]</p>
-    <p>結果 [[${janken.result}]]</p>
-  </div>
+  <h2>試合結果</h2>
+  <ul>
+    <li th:each="match : ${matches}">
+      id:<span th:text="${match.id}"></span>
+      user1:<span th:text="${match.user1}"></span>
+      user2:<span th:text="${match.user2}"></span>
+      user1Hand:<span th:text="${match.user1Hand}"></span>
+      user2Hand:<span th:text="${match.user2Hand}"></span>
+    </li>
+  </ul>
 
   <a href="/janken">jankenへのGETをリクエスト</a><br>
 </body>
-
-
 
 </html>
