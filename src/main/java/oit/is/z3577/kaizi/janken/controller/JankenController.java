@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.security.Principal;
 import java.util.ArrayList;
 
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import oit.is.z3577.kaizi.janken.model.Entry;
 
@@ -16,6 +15,8 @@ import oit.is.z3577.kaizi.janken.model.User;
 import oit.is.z3577.kaizi.janken.model.UserMapper;
 import oit.is.z3577.kaizi.janken.model.Match;
 import oit.is.z3577.kaizi.janken.model.MatchMapper;
+import oit.is.z3577.kaizi.janken.model.MatchInfo;
+import oit.is.z3577.kaizi.janken.model.MatchInfoMapper;
 
 @Controller
 public class JankenController {
@@ -25,6 +26,8 @@ public class JankenController {
   UserMapper userMapper;
   @Autowired
   MatchMapper matchMapper;
+  @Autowired
+  MatchInfoMapper matchInfoMapper;
 
   /**
    * /janken に直接アクセスしたとき．ユーザ名は表示しない．
@@ -40,6 +43,10 @@ public class JankenController {
     model.addAttribute("users", users);
     ArrayList<Match> matches = matchMapper.selectAllMatches();
     model.addAttribute("matches", matches);
+
+    ArrayList<MatchInfo> activeMatches = matchInfoMapper.selectActiveMatchInfo();
+    model.addAttribute("activeMatches", activeMatches);
+
     return "janken.html";
   }
 
@@ -57,13 +64,13 @@ public class JankenController {
     model.addAttribute("opponent", opponent);
     return "match.html";
   }
-  
+
   @GetMapping("/fight")
   public String fight(@RequestParam Integer id, @RequestParam String hand,
       Principal prin, ModelMap model) {
-    User me = userMapper.selectByName(prin.getName());  // ログインユーザ（ほんだ）
-    User opponent = userMapper.selectById(id);          // 相手（CPU）
-    String cpuHand = "Gu";                              // CPUの手は固定でOK
+    User me = userMapper.selectByName(prin.getName()); // ログインユーザ（ほんだ）
+    User opponent = userMapper.selectById(id); // 相手（CPU）
+    String cpuHand = "Gu"; // CPUの手は固定でOK
 
     // DBに登録
     Match match = new Match();
@@ -80,6 +87,23 @@ public class JankenController {
     model.addAttribute("cpuHand", cpuHand);
     model.addAttribute("result", judge(hand, cpuHand));
     return "match.html";
+  }
+
+  @GetMapping("/wait")
+  public String waitMatch(@RequestParam Integer id, @RequestParam String hand,
+      Principal prin, ModelMap model) {
+    User me = userMapper.selectByName(prin.getName()); // ログインユーザ（ほんだ）
+
+    // matchinfo に試合中の情報を登録
+    MatchInfo matchInfo = new MatchInfo();
+    matchInfo.setUser1(me.getId()); // 自分のid
+    matchInfo.setUser2(id); // 相手のid（リンクで送られてきたもの）
+    matchInfo.setUser1Hand(hand); // 自分が選んだ手
+    matchInfo.setIsActive(true); // 試合中
+    matchInfoMapper.insertMatchInfo(matchInfo);
+
+    model.addAttribute("loginUser", prin.getName());
+    return "wait.html";
   }
 
   private String judge(String my, String cpu) {

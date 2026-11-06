@@ -11,9 +11,9 @@
   <h1>Match</h1>
   <h2>[[${loginUser}]] V.S. [[${opponent.name}]]</h2>
   <div>
-    <a th:href="@{/fight(id=${opponent.id},hand='Gu')}">ぐー</a>
-    <a th:href="@{/fight(id=${opponent.id},hand='Choki')}">ちょき</a>
-    <a th:href="@{/fight(id=${opponent.id},hand='Pa')}">ぱー</a>
+    <a th:href="@{/wait(id=${opponent.id},hand='Gu')}">ぐー</a>
+    <a th:href="@{/wait(id=${opponent.id},hand='Choki')}">ちょき</a>
+    <a th:href="@{/wait(id=${opponent.id},hand='Pa')}">ぱー</a>
   </div>
   <div th:if="${result != null}">
     <div>あなたの手 [[${myHand}]]</div>
