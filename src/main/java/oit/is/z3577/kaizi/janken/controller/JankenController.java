@@ -17,6 +17,8 @@ import oit.is.z3577.kaizi.janken.model.Match;
 import oit.is.z3577.kaizi.janken.model.MatchMapper;
 import oit.is.z3577.kaizi.janken.model.MatchInfo;
 import oit.is.z3577.kaizi.janken.model.MatchInfoMapper;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import oit.is.z3577.kaizi.janken.service.AsyncKekka;
 
 @Controller
 public class JankenController {
@@ -28,6 +30,8 @@ public class JankenController {
   MatchMapper matchMapper;
   @Autowired
   MatchInfoMapper matchInfoMapper;
+  @Autowired
+  AsyncKekka asyncKekka;
 
   /**
    * /janken に直接アクセスしたとき．ユーザ名は表示しない．
@@ -113,7 +117,7 @@ public class JankenController {
       match.setUser1Hand(waiting.getUser1Hand()); // プレイヤーAの手（matchinfoに保存されていた）
       match.setUser2Hand(hand); // プレイヤーBの手（今選んだ）
       match.setIsActive(true);
-      matchMapper.insertMatch(match);
+      asyncKekka.syncInsertMatch(match);
 
       // 【仕様D】待機レコードを終了状態（FALSE）にする
       matchInfoMapper.updateInactive(waiting.getId());
@@ -121,6 +125,14 @@ public class JankenController {
 
     model.addAttribute("loginUser", prin.getName());
     return "wait.html";
+  }
+
+  // wait.html の JavaScript（EventSource）から呼ばれる
+  @GetMapping("/result")
+  public SseEmitter result() {
+    final SseEmitter sseEmitter = new SseEmitter();
+    this.asyncKekka.asyncShowResult(sseEmitter);
+    return sseEmitter;
   }
 
   private String judge(String my, String cpu) {

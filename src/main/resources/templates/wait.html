@@ -4,12 +4,33 @@
 <head>
   <meta charset="UTF-8">
   <title>Wait</title>
+  <script>
+    window.onload = function () {
+
+      var sse = new EventSource('/result');
+      sse.onmessage = function (event) {
+        console.log(event.data);
+        var matches = JSON.parse(event.data); // JSON文字列を配列に変換
+        var html = "";
+        for (var i = 0; i < matches.length; i++) {
+          html = html + "<div>試合結果 id:" + matches[i].id
+            + " user1:" + matches[i].user1
+            + " user2:" + matches[i].user2
+            + " user1の手:" + matches[i].user1Hand
+            + " user2の手:" + matches[i].user2Hand + "</div>";
+        }
+        html = html + "<a href='/janken'>戻る</a>"; // 【仕様B】戻るリンク
+        document.getElementById("result").innerHTML = html; // id="result" の中身を差し替え
+      }
+    }
+  </script>
 </head>
 
 <body>
   <a href="/logout">ログアウト</a>
   <p>Hi [[${loginUser}]]</p>
   <p>相手の手を待ってます</p>
+  <div id="result"></div> <!-- ← 追加：結果を書き込む場所 -->
 </body>
 
 </html>
