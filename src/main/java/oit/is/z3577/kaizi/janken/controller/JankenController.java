@@ -92,15 +92,32 @@ public class JankenController {
   @GetMapping("/wait")
   public String waitMatch(@RequestParam Integer id, @RequestParam String hand,
       Principal prin, ModelMap model) {
-    User me = userMapper.selectByName(prin.getName()); // ログインユーザ（ほんだ）
+    User me = userMapper.selectByName(prin.getName()); // ログインユーザ（自分）
 
-    // matchinfo に試合中の情報を登録
-    MatchInfo matchInfo = new MatchInfo();
-    matchInfo.setUser1(me.getId()); // 自分のid
-    matchInfo.setUser2(id); // 相手のid（リンクで送られてきたもの）
-    matchInfo.setUser1Hand(hand); // 自分が選んだ手
-    matchInfo.setIsActive(true); // 試合中
-    matchInfoMapper.insertMatchInfo(matchInfo);
+    // 【仕様A】相手(id)が自分(me)を待っている試合中のレコードがあるか調べる
+    MatchInfo waiting = matchInfoMapper.selectActiveByUsers(id, me.getId());
+
+    if (waiting == null) {
+      // 【仕様B】無い → 自分が先手。task2 と同じく matchinfo に登録して待つ
+      MatchInfo matchInfo = new MatchInfo();
+      matchInfo.setUser1(me.getId()); // 自分のid
+      matchInfo.setUser2(id); // 相手のid
+      matchInfo.setUser1Hand(hand); // 自分が選んだ手
+      matchInfo.setIsActive(true); // 試合中
+      matchInfoMapper.insertMatchInfo(matchInfo);
+    } else {
+      // 【仕様C】ある → 試合成立。matches に結果を登録する
+      Match match = new Match();
+      match.setUser1(waiting.getUser1()); // プレイヤーA（先手）のID
+      match.setUser2(me.getId()); // プレイヤーB（自分）のID
+      match.setUser1Hand(waiting.getUser1Hand()); // プレイヤーAの手（matchinfoに保存されていた）
+      match.setUser2Hand(hand); // プレイヤーBの手（今選んだ）
+      match.setIsActive(true);
+      matchMapper.insertMatch(match);
+
+      // 【仕様D】待機レコードを終了状態（FALSE）にする
+      matchInfoMapper.updateInactive(waiting.getId());
+    }
 
     model.addAttribute("loginUser", prin.getName());
     return "wait.html";
